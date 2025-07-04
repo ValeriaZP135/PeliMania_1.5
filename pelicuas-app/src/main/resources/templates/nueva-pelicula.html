@@ -1,48 +1,99 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <title>Nueva Película</title>
+    <title th:text="${pelicula.id != null} ? 'Editar Película' : 'Nueva Película'">Nueva Película</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body class="container mt-4">
-    <h2>Agregar nueva película</h2>
+    <!-- Navbar de navegación -->
+    <nav class="mb-4">
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-1"></i>Volver al Dashboard
+        </a>
+    </nav>
 
-    <form th:action="@{/peliculas/guardar}" method="post" enctype="multipart/form-data">
+    <!-- Título dinámico -->
+    <h2 th:text="${pelicula.id != null} ? 'Editar Película' : 'Agregar Nueva Película'">Agregar nueva película</h2>
+
+    <!-- Formulario dinámico -->
+    <form th:action="${pelicula.id != null} ? @{/peliculas/actualizar/{id}(id=${pelicula.id})} : @{/peliculas/guardar}" 
+          method="post" enctype="multipart/form-data" th:object="${pelicula}">
+        
+        <!-- Mostrar imagen actual si es edición -->
+        <div th:if="${pelicula.id != null and pelicula.urlPoster != null}" class="mb-3">
+            <label class="form-label">Imagen Actual</label>
+            <div>
+                <img th:src="${pelicula.urlPoster}" alt="Poster actual" 
+                     style="width: 150px; height: 200px; object-fit: cover;" 
+                     class="rounded border">
+            </div>
+            <small class="text-muted">Selecciona una nueva imagen solo si quieres cambiarla</small>
+        </div>
+
         <div class="mb-3">
             <label class="form-label">Título</label>
-            <input type="text" class="form-control" name="titulo" required>
+            <input type="text" class="form-control" name="titulo" th:value="*{titulo}" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Director</label>
-            <input type="text" class="form-control" name="director" required>
+            <input type="text" class="form-control" name="director" th:value="*{director}" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Año de lanzamiento</label>
-            <input type="number" class="form-control" name="anoLanzamiento" required>
+            <input type="number" class="form-control" name="anoLanzamiento" th:value="*{anoLanzamiento}" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Género</label>
-            <input type="text" class="form-control" name="genero" required>
+            <input type="text" class="form-control" name="genero" th:value="*{genero}" required>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Sinopsis</label>
-            <textarea class="form-control" name="sinopsis" rows="3" required></textarea>
+            <textarea class="form-control" name="sinopsis" rows="3" th:text="*{sinopsis}" required></textarea>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Imagen (poster)</label>
-            <input type="file" class="form-control" name="imagen" accept="image/*">
+            <label class="form-label">
+                <span th:if="${pelicula.id != null}">Nueva Imagen (poster) - Opcional</span>
+                <span th:if="${pelicula.id == null}">Imagen (poster)</span>
+            </label>
+            <input type="file" class="form-control" name="imagen" accept="image/*" 
+                   th:required="${pelicula.id == null}">
+            <small class="text-muted" th:if="${pelicula.id != null}">
+                Deja vacío si no quieres cambiar la imagen actual
+            </small>
         </div>
 
-        <button type="submit" class="btn btn-primary">Guardar Película</button>
+        <!-- Botones -->
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-success">
+                <i th:class="${pelicula.id != null} ? 'fas fa-save me-1' : 'fas fa-plus me-1'"></i>
+                <span th:text="${pelicula.id != null} ? 'Actualizar Película' : 'Guardar Película'">Guardar Película</span>
+            </button>
+            
+            <a th:href="@{/admin/dashboard}" class="btn btn-outline-secondary">
+                <i class="fas fa-times me-1"></i>Cancelar
+            </a>
+        </div>
 
+        <!-- Mensajes de éxito/error -->
         <div th:if="${param.success}" class="alert alert-success mt-3">
-            Película guardada correctamente.
+            <i class="fas fa-check-circle me-1"></i>
+            <span th:if="${param.success[0] == 'created'}">Película creada correctamente.</span>
+            <span th:if="${param.success[0] == 'updated'}">Película actualizada correctamente.</span>
+            <span th:unless="${param.success[0] == 'created' or param.success[0] == 'updated'}">Película guardada correctamente.</span>
+        </div>
+        
+        <div th:if="${param.error}" class="alert alert-danger mt-3">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            Ocurrió un error al procesar la película. Inténtalo de nuevo.
         </div>
     </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

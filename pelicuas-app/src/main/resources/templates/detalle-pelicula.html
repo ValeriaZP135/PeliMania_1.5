@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${pelicula.titulo} + ' - Detalles'">Detalles de Película</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/peliculas/catalogo}">
+                <i class="fas fa-film me-2"></i>PeliMania
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>
+                        <span sec:authentication="name"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><span class="dropdown-item-text">Usuario</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a th:href="@{/peliculas/catalogo}">
+                        <i class="fas fa-home me-1"></i>Catálogo
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" th:text="${pelicula.titulo}">Película</li>
+            </ol>
+        </nav>
+
+        <!-- Detalles de la película -->
+        <div class="row">
+            <!-- Poster -->
+            <div class="col-md-4 mb-4">
+                <div class="card shadow">
+                    <img th:src="${pelicula.urlPoster}" 
+                         class="card-img-top" 
+                         alt="Poster"
+                         style="height: 600px; object-fit: cover;"
+                         onerror="this.src='https://via.placeholder.com/400x600?text=Sin+Imagen'">
+                </div>
+            </div>
+
+            <!-- Información -->
+            <div class="col-md-8">
+                <h1 class="display-4 mb-3" th:text="${pelicula.titulo}">Título</h1>
+                
+                <!-- Información básica -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    <i class="fas fa-user-tie me-1"></i>Director
+                                </h6>
+                                <p class="card-text h5" th:text="${pelicula.director}">Director</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    <i class="fas fa-calendar me-1"></i>Año
+                                </h6>
+                                <p class="card-text h5" th:text="${pelicula.anoLanzamiento}">Año</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">
+                                    <i class="fas fa-tags me-1"></i>Género
+                                </h6>
+                                <span class="badge bg-primary fs-6" th:text="${pelicula.genero}">Género</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sinopsis -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-book-open me-2"></i>Sinopsis
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text lead" th:text="${pelicula.sinopsis}">Sinopsis de la película...</p>
+                    </div>
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-flex gap-2 mb-4">
+                    <!-- Solo usuarios que NO son admin ven "Volver al Catálogo" -->
+                    <a sec:authorize="hasRole('USER') and !hasRole('ADMIN')" 
+                    th:href="@{/peliculas/catalogo}" 
+                    class="btn btn-outline-primary">
+                        <i class="fas fa-arrow-left me-1"></i>Volver al Catálogo
+                    </a>
+                    
+                    <!-- Solo admin ve botones administrativos -->
+                    <div sec:authorize="hasRole('ADMIN')">
+                        <a th:href="@{/admin/dashboard}" class="btn btn-danger">
+                            <i class="fas fa-cog me-1"></i>Ir al Dashboard
+                        </a>
+                        <a th:href="@{/peliculas/editar/{id}(id=${pelicula.id})}" class="btn btn-warning">
+                            <i class="fas fa-edit me-1"></i>Editar Película
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

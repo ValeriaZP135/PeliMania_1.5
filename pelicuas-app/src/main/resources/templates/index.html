@@ -1,13 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Catálogo de Películas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>
-        prueba
-    </h1>
+    <!-- Navbar Usuario -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-film me-2"></i>PeliMania
+            </a>
+            
+            <div class="navbar-nav ms-auto">
+                <div sec:authorize="isAuthenticated()" class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>
+                        <span sec:authentication="name"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><span class="dropdown-item-text">Usuario</span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post" class="d-inline">
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1><i class="fas fa-film me-2"></i>Catálogo de Películas</h1>
+        <p class="text-muted">Explora nuestra colección de películas</p>
+
+        <!-- Lista de películas para usuarios (solo lectura) -->
+        <div class="row">
+            <div th:each="pelicula : ${peliculas}" class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <img th:src="${pelicula.urlPoster}" class="card-img-top" alt="Poster" 
+                         style="height: 400px; object-fit: cover;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" th:text="${pelicula.titulo}">Título</h5>
+                        <p class="card-text flex-grow-1" th:text="${pelicula.sinopsis}">Sinopsis</p>
+                        <div class="mt-auto">
+                            <p class="text-muted mb-2">
+                                <strong>Género:</strong> 
+                                <span class="badge bg-secondary" th:text="${pelicula.genero}"></span><br>
+                                <strong>Año:</strong> <span th:text="${pelicula.anoLanzamiento}"></span>
+                            </p>
+                            <a th:href="@{/peliculas/detalle/{id}(id=${pelicula.id})}" 
+                               class="btn btn-primary btn-sm w-100">
+                                <i class="fas fa-eye me-1"></i>Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div th:if="${#lists.isEmpty(peliculas)}" class="text-center py-5">
+            <i class="fas fa-film fa-5x text-muted mb-3"></i>
+            <h3>No hay películas disponibles</h3>
+            <p class="text-muted">Vuelve pronto para ver nuevas películas</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
